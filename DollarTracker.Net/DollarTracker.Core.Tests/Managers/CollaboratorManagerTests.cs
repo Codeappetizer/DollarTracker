@@ -121,5 +121,45 @@ namespace DollarTracker.Core.Tests.Managers
 
 			Assert.IsFalse(isCollaboratorExists);
 		}
+		[Test]
+		public void GetCollaboratorTest()
+		{
+			var expenseStory1 = GetNewMockPersonalExpenseStory(user.UserId);
+			var collaborator1 = GetNewMockCollaborator(user.UserId, expenseStory1.ExpenseStoryId);
+			var collaboratorMgr = new CollaboratorManager(new CollaboratorRepository(dbFactory), unitOfWork);
+			var expenseStoryRepository = new ExpenseStoryRepository(dbFactory);
+			new ExpenseStoryManager(expenseStoryRepository, unitOfWork,
+				new ExpenseManager(new ExpenseRepository(dbFactory), unitOfWork),
+				new CollaboratorManager(new CollaboratorRepository(dbFactory), unitOfWork)).AddExpenseStory(expenseStory1);
+			
+			collaboratorMgr.AddCollaborator(collaborator1);
+
+			var actualCollaborator = collaboratorMgr.GetCollaborator(user.UserId, expenseStory1.ExpenseStoryId);
+			
+			Assert.AreEqual(actualCollaborator.GetHashCode(), collaborator1.GetHashCode(), "Actual and expected collaborator hash code should be same");
+		}
+		[Test]
+		public void DeleteAllCollaboratorsTest()
+		{
+			var expenseStory1 = GetNewMockPersonalExpenseStory(user.UserId);
+			var collaborator1 = GetNewMockCollaborator(user.UserId, expenseStory1.ExpenseStoryId);
+			var collaborator2 = GetNewMockCollaborator(user.UserId, expenseStory1.ExpenseStoryId);
+			var collaborator3 = GetNewMockCollaborator(user.UserId, expenseStory1.ExpenseStoryId);
+			var expenseStoryRepository = new ExpenseStoryRepository(dbFactory);
+			new ExpenseStoryManager(expenseStoryRepository, unitOfWork,
+				new ExpenseManager(new ExpenseRepository(dbFactory), unitOfWork),
+				new CollaboratorManager(new CollaboratorRepository(dbFactory), unitOfWork)).AddExpenseStory(expenseStory1);
+			//var expectedCollaboratorsCount = 3;
+
+			collaboratorMgr.AddCollaborator(collaborator1);
+			collaboratorMgr.AddCollaborator(collaborator2);
+			collaboratorMgr.AddCollaborator(collaborator3);
+
+			collaboratorMgr.DeleteAllCollaborators(expenseStory1.ExpenseStoryId);
+
+			var isCollaboratorExists = dataContext.Collaborator.Any(x => x.ExpenseStoryId == expenseStory1.ExpenseStoryId);
+
+			Assert.IsFalse(isCollaboratorExists);
+		}
 	}
 }

@@ -94,6 +94,14 @@ namespace DollarTracker.Core.Tests.Managers
 		}
 
 		[TestMethod]
+		public void GetUserViaEmailFailTest()
+		{
+			var email = "samantah367@gmail.com";
+			var actualUser = userManager.GetUserViaEmail(email);
+			Assert.IsNull(actualUser);
+		}
+
+		[TestMethod]
 		public void GetUserViaEmailNotExistsTests()
 		{
 			var inValidEmail = Guid.NewGuid().ToString("N").Substring(0,10) + "@test.com";
